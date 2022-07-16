@@ -1,3 +1,8 @@
+[![Go Reference](https://pkg.go.dev/badge/github.com/xosmig/placeholders.svg)](https://pkg.go.dev/github.com/xosmig/placeholders)
+[![Go Report Card](https://goreportcard.com/badge/github.com/xosmig/placeholders)](https://goreportcard.com/report/github.com/xosmig/placeholders)
+[![Test](https://github.com/xosmig/placeholders/actions/workflows/test.yml/badge.svg)](https://github.com/xosmig/placeholders/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/xosmig/placeholders/branch/main/graph/badge.svg)](https://codecov.io/gh/xosmig/placeholders)
+
 # placeholders
 Placeholders for struct fields for efficient testing with [go-cmp](https://github.com/google/go-cmp).  
 The package is non-intrusive, i.e., the original structs do not need to be modified.
