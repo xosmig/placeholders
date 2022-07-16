@@ -130,10 +130,9 @@ func IsPlaceholder(obj any) bool {
 func equateAlways(_, _ interface{}) bool { return true }
 
 // Comparer returns a cmp.Comparer option that determines a  placeholder to be
-// equal with any other object of the same type.
+// equal with any other object (regardless of types and values).
 func Comparer() cmp.Option {
 	filter := func(a, b any) bool {
-		// go-cmp already guarantees that the parameters are of the same type
 		return IsPlaceholder(a) || IsPlaceholder(b)
 	}
 
