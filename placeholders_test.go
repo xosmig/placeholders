@@ -32,7 +32,7 @@ func TestMake_Example(t *testing.T) {
 	assert.Assert(t, cmp.Equal(Make[*string](t), &helloString, Comparer()))
 
 	placeholder := Make[*string](t)
-	anotherRef := &(*placeholder)
+	anotherRef := &(*placeholder) // nolint
 
 	// true, any reference to the allocated object is a placeholder
 	assert.Assert(t, cmp.Equal(anotherRef, &helloString, Comparer()))
@@ -104,7 +104,7 @@ func TestMake(tt *testing.T) {
 
 		"another reference to the created object": func(t *testing.T) (arg1 testStruct, arg2 testStruct, equal bool) {
 			placeholder := Make[*string](t)
-			anotherRef := &(*placeholder)
+			anotherRef := &(*placeholder) // nolint
 
 			if &placeholder == &anotherRef {
 				panic("these are supposed to be two different pointers to the same object")
