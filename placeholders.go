@@ -5,7 +5,6 @@ import (
 	"reflect"
 	"sync"
 	"sync/atomic"
-	"testing"
 	"unsafe"
 )
 
@@ -29,6 +28,13 @@ type allocationWrapper[T any] struct {
 	sn  uint64
 }
 
+// TestingCleanup is an interface implemented by *testing.T and *testing.B.
+type TestingCleanup interface {
+	// Cleanup is used to reclaim the resources allocated to keep track of the
+	// placeholders.
+	Cleanup(f func())
+}
+
 // Make allocates a new zero-valued object of type T and returns an object of
 // type TPtr that references the allocated object. TPtr is either *T or has *T
 // as its underlying type (i.e, defined as "type Foo *Bar", where TPtr = Foo
@@ -43,8 +49,11 @@ type allocationWrapper[T any] struct {
 // The second type parameter (T) can always be inferred from the first one
 // (TPtr) and does not need to be explicitly specified.
 //
-// The resources allocated to keep track of the placeholders are automatically
-// reclaimed when the test completes.
+// The only parameter (t) can of type *testing.T, *testing.B, or any other type
+// with a function Cleanup with a similar semantic and it ensures that the
+// resources allocated to keep track of the placeholders are eventually
+// reclaimed (e.g., when t is of type *testing.T, they are reclaimed upon the
+// completion of the test).
 //
 // Example:
 //    helloString := "hello"
@@ -68,7 +77,7 @@ type allocationWrapper[T any] struct {
 //
 //    // false, non-placeholder fields differ
 //    cmp.Equal(Foo{placeholders.Make[*string](t), "earthlings"}, Foo{&helloString, "world"}, placeholders.Comparer())
-func Make[TPtr ~*T, T any](t *testing.T) TPtr {
+func Make[TPtr ~*T, T any](t TestingCleanup) TPtr {
 	placeholderManagerInit.Do(func() {
 		// placeholderManager.placeholdersMx doesn't need initialization.
 		placeholderManager.placeholders = make(map[unsafe.Pointer]unsafe.Pointer)
