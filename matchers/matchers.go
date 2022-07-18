@@ -12,5 +12,5 @@ import (
 // will cause an ambiguity and gocmp will panic. Use a custom wrapper option in
 // this case.
 func DiffEq(x any, opts ...cmp.Option) gomock.Matcher {
-	return cmpmock.DiffEq(x, append(opts, placeholders.Comparer())...)
+	return cmpmock.DiffEq(x, placeholders.Comparer(), cmp.Options(opts))
 }
