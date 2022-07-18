@@ -29,22 +29,22 @@ func TestMake_Example(t *testing.T) {
 	helloString := "hello"
 
 	// true
-	assert.Assert(t, cmp.Equal(Make[*string](t), &helloString, Comparer()))
+	assert.Assert(t, cmp.Equal(Make[*string](t), &helloString, Ignore()))
 
 	placeholder := Make[*string](t)
 	anotherRef := &(*placeholder) // nolint
 
 	// true, any reference to the allocated object is a placeholder
-	assert.Assert(t, cmp.Equal(anotherRef, &helloString, Comparer()))
+	assert.Assert(t, cmp.Equal(anotherRef, &helloString, Ignore()))
 
 	// false, the allocated object itself is not a placeholder
-	assert.Assert(t, !cmp.Equal(*placeholder, "hello", Comparer()))
+	assert.Assert(t, !cmp.Equal(*placeholder, "hello", Ignore()))
 
 	// true, it works with struct fields and embedded types as well!
-	assert.Assert(t, cmp.Equal(Foo{Make[*string](t), "world"}, Foo{&helloString, "world"}, Comparer()))
+	assert.Assert(t, cmp.Equal(Foo{Make[*string](t), "world"}, Foo{&helloString, "world"}, Ignore()))
 
 	// false, non-placeholder fields differ
-	assert.Assert(t, !cmp.Equal(Foo{Make[*string](t), "earthlings"}, Foo{&helloString, "world"}, Comparer()))
+	assert.Assert(t, !cmp.Equal(Foo{Make[*string](t), "earthlings"}, Foo{&helloString, "world"}, Ignore()))
 }
 
 func TestMake(tt *testing.T) {
@@ -159,10 +159,10 @@ func TestMake(tt *testing.T) {
 	for testName, tc := range testCases {
 		tt.Run(testName, func(t *testing.T) {
 			arg1, arg2, expectedEqual := tc(t)
-			equal := cmp.Equal(arg1, arg2, Comparer())
+			equal := cmp.Equal(arg1, arg2, Ignore())
 			if expectedEqual && !equal {
 				t.Errorf("structs are supposed to be considered equal, but are considered differet. diff: %v",
-					cmp.Diff(arg1, arg2, Comparer()))
+					cmp.Diff(arg1, arg2, Ignore()))
 			} else if !expectedEqual && equal {
 				t.Error("structs are supposed to be considered different, but are considered equal")
 			}

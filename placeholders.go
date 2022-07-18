@@ -39,9 +39,9 @@ type TestingCleanup interface {
 // type TPtr that references the allocated object. TPtr is either *T or has *T
 // as its underlying type (i.e, defined as "type Foo *Bar", where TPtr = Foo
 // and T = Bar). The returned reference or any other reference to the allocated
-// object is considered a placeholder reference: when cmp.Equal is invoked
-// with the placeholders.Comparer option, a placeholder reference is considered
-// to be equal to any other object, regardless of types or values.
+// object is considered a placeholder reference: when cmp.Equal or cmp.Diff is
+// invoked with the placeholders.Ignore option, a placeholder reference is
+// considered to be equal to any other object, regardless of types or values.
 //
 // Only pointers to the allocated object are considered placeholders and not
 // the object itself (see examples below).
@@ -49,8 +49,8 @@ type TestingCleanup interface {
 // The second type parameter (T) can always be inferred from the first one
 // (TPtr) and does not need to be explicitly specified.
 //
-// The only parameter (t) can of type *testing.T, *testing.B, or any other type
-// with a function Cleanup with a similar semantic and it ensures that the
+// The only parameter (t) can be of type *testing.T, *testing.B, or any other
+// type with a function Cleanup with a similar semantic. It ensures that the
 // resources allocated to keep track of the placeholders are eventually
 // reclaimed (e.g., when t is of type *testing.T, they are reclaimed upon the
 // completion of the test).
@@ -59,24 +59,24 @@ type TestingCleanup interface {
 //    helloString := "hello"
 //
 //    // true
-//    cmp.Equal(placeholders.Make[*string](t), &helloString, placeholders.Comparer())
+//    cmp.Equal(placeholders.Make[*string](t), &helloString, placeholders.Ignore())
 //
 //    placeholder := placeholders.Make[*string](t)
 //    anotherRef := &(*placeholder)
 //
 //    // true, any reference to the allocated object is a placeholder
-//    cmp.Equal(anotherRef, &helloString, placeholders.Comparer())
+//    cmp.Equal(anotherRef, &helloString, placeholders.Ignore())
 //
 //    // false, the allocated object itself is not a placeholder
-//    cmp.Equal(*placeholder, "hello", placeholders.Comparer())
+//    cmp.Equal(*placeholder, "hello", placeholders.Ignore())
 //
 //    type Foo struct {SPtr *string; S string}
 //
 //    // true, it works with struct fields and embedded types as well!
-//    cmp.Equal(Foo{placeholders.Make[*string](t), "world"}, Foo{&helloString, "world"}, placeholders.Comparer())
+//    cmp.Equal(Foo{placeholders.Make[*string](t), "world"}, Foo{&helloString, "world"}, placeholders.Ignore())
 //
 //    // false, non-placeholder fields differ
-//    cmp.Equal(Foo{placeholders.Make[*string](t), "earthlings"}, Foo{&helloString, "world"}, placeholders.Comparer())
+//    cmp.Equal(Foo{placeholders.Make[*string](t), "earthlings"}, Foo{&helloString, "world"}, placeholders.Ignore())
 func Make[TPtr ~*T, T any](t TestingCleanup) TPtr {
 	placeholderManagerInit.Do(func() {
 		// placeholderManager.placeholdersMx doesn't need initialization.
@@ -138,12 +138,11 @@ func IsPlaceholder(obj any) bool {
 
 func equateAlways(_, _ interface{}) bool { return true }
 
-// Comparer returns a cmp.Comparer option that determines a  placeholder to be
-// equal with any other object (regardless of types and values).
-func Comparer() cmp.Option {
+// Ignore returns a cmp.Ignore option that ignores all placeholders.
+func Ignore() cmp.Option {
 	filter := func(a, b any) bool {
 		return IsPlaceholder(a) || IsPlaceholder(b)
 	}
 
-	return cmp.FilterValues(filter, cmp.Comparer(equateAlways))
+	return cmp.FilterValues(filter, cmp.Ignore())
 }

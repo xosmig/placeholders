@@ -7,10 +7,7 @@ import (
 	"github.com/xosmig/placeholders"
 )
 
-// DiffEq invokes cmpmock.DiffEq with an extra placeholders.Comparer() option.
-// Note that, if another cmp.Comparer or cmp.Transformer option is provided, it
-// will cause an ambiguity and gocmp will panic. Use a custom wrapper option in
-// this case.
+// DiffEq invokes cmpmock.DiffEq with an extra placeholders.Ignore() option.
 func DiffEq(x any, opts ...cmp.Option) gomock.Matcher {
-	return cmpmock.DiffEq(x, placeholders.Comparer(), cmp.Options(opts))
+	return cmpmock.DiffEq(x, placeholders.Ignore(), cmp.Options(opts))
 }
