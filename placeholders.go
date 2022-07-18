@@ -136,8 +136,6 @@ func IsPlaceholder(obj any) bool {
 	return found
 }
 
-func equateAlways(_, _ interface{}) bool { return true }
-
 // Ignore returns a cmp.Ignore option that ignores all placeholders.
 func Ignore() cmp.Option {
 	filter := func(a, b any) bool {
